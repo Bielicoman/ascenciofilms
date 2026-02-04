@@ -541,8 +541,8 @@ const AppContent = () => {
           onMouseLeave={() => setCursorVariant('default')}
           style={{ textDecoration: 'none', cursor: 'none' }}
         >
-          <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)' }}>
-            ASCENCIO.<span style={{ color: 'var(--accent-color)' }}>FILMS</span>
+          <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
+            ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
           </div>
         </a>
 
