@@ -887,12 +887,6 @@ const AppContent = () => {
          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* PHOTOGRAPHY TEASER (GALLERY) */}
-      {view === 'home' && (
-        <section>
-          <PhotographyTeaser photos={PHOTOS} onClick={() => setView('gallery')} />
-        </section>
-      )}
 
     </div>
   );
