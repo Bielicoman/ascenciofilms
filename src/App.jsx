@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
+import useIsMobile from './hooks/useMobile';
 
 // --- DADOS (SEUS PROJETOS) ---
 const PROJECTS = [
@@ -88,8 +89,12 @@ const useTheme = () => useContext(ThemeContext);
 // 1. MOUSE ORB GIGANTE (COM TRANSFORMAÇÃO REFINADA)
 // 1. MOUSE ORB GIGANTE (COM TRANSFORMAÇÃO REFINADA & FADE OUT)
 const MouseOrb = () => {
+  const isMobile = useIsMobile();
   const { cursorVariant } = useCursor();
   const { theme } = useTheme(); // Access Theme
+
+  if (isMobile) return null;
+
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
   const [isVisible, setIsVisible] = useState(false);
@@ -193,6 +198,7 @@ const MouseOrb = () => {
 
 // 2. CARD 3D (COM GLARE E PARALLAX)
 const TiltCard = ({ project, onClick }) => {
+  const isMobile = useIsMobile();
   const { setCursorVariant } = useCursor();
 
   // Motion Values para inclinação
@@ -214,6 +220,7 @@ const TiltCard = ({ project, onClick }) => {
   const imgY = useSpring(0, springConfig);
 
   function handleMouse(event) {
+    if (isMobile) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -428,6 +435,7 @@ const SocialTile = ({ href, icon, label, color }) => {
 
 // --- APP CONTENT (SEPARADO PARA USAR O CONTEXTO) ---
 const AppContent = () => {
+  const isMobile = useIsMobile();
   const { setCursorVariant } = useCursor();
   const [activeModal, setActiveModal] = useState(null);
   const [heroIndex, setHeroIndex] = useState(0);
@@ -453,7 +461,7 @@ const AppContent = () => {
   const filteredProjects = selectedCategory === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === selectedCategory);
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", overflowX: 'hidden', cursor: 'none', transition: 'background-color 0.5s ease, color 0.5s ease' }}>
+    <div style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)', minHeight: '100vh', fontFamily: "'Outfit', sans-serif", overflowX: 'hidden', cursor: isMobile ? 'auto' : 'none', transition: 'background-color 0.5s ease, color 0.5s ease' }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap');
@@ -525,29 +533,79 @@ const AppContent = () => {
       <MouseOrb />
 
       {/* MENU */}
-      <nav style={{
-        position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-        width: scrolled ? '560px' : '90%', // Aumentado para caber Portfólio sem quebrar
-        maxWidth: '1200px', height: '70px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '0 30px', borderRadius: '50px', zIndex: 100, transition: 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
-      }} className="glass-luxury">
+      {/* MENU */}
+      {!isMobile ? (
+        // DESKTOP NAVBAR
+        <nav style={{
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          width: scrolled ? '560px' : '90%',
+          maxWidth: '1200px', height: '70px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '0 30px', borderRadius: '50px', zIndex: 100, transition: 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        }} className="glass-luxury">
+          {/* LOGO LINK */}
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            onMouseEnter={() => setCursorVariant('hover')}
+            onMouseLeave={() => setCursorVariant('default')}
+            style={{ textDecoration: 'none', cursor: 'none' }}
+          >
+            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
+              ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
+            </div>
+          </a>
 
-        {/* LOGO LINK */}
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-          onMouseEnter={() => setCursorVariant('hover')}
-          onMouseLeave={() => setCursorVariant('default')}
-          style={{ textDecoration: 'none', cursor: 'none' }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
-            ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '30px' }}>
+              {['Portfólio', 'Sobre', 'Contato'].map(item => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const element = document.getElementById(id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  onMouseEnter={() => setCursorVariant('hover')}
+                  onMouseLeave={() => setCursorVariant('default')}
+                  style={{ color: 'var(--muted-text)', textDecoration: 'none', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', cursor: 'none', transition: 'color 0.3s' }}
+                  className="hover-link"
+                >
+                  {item}
+                </a>
+              ))}
+            </div>
+            <ThemeToggle />
           </div>
-        </a>
+        </nav>
+      ) : (
+        // MOBILE NAVBAR (Simple Top Logo + Bottom Dock)
+        <>
+          {/* Top Logo */}
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, height: '60px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 99, background: 'linear-gradient(to bottom, var(--bg-color) 0%, transparent 100%)',
+            pointerEvents: 'none' // Let clicks pass through to underlying elements if needed, but text needs to be visible
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)', textShadow: '0 2px 10px rgba(0,0,0,0.5)', pointerEvents: 'auto' }}>
+              ASCENCIO.<span style={{ color: 'var(--accent-color)' }}>FILMS</span>
+            </div>
+          </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ display: 'flex', gap: '30px' }}>
+          {/* Bottom Dock */}
+          <nav style={{
+            position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+            width: '90%', maxWidth: '400px', height: '65px',
+            display: 'flex', justifyContent: 'space-around', alignItems: 'center',
+            padding: '0 10px', borderRadius: '25px', zIndex: 100,
+            background: 'var(--glass-bg)', backdropFilter: 'blur(20px)',
+            border: '1px solid var(--glass-border)', boxShadow: '0 10px 30px var(--glass-shadow)'
+          }}>
             {['Portfólio', 'Sobre', 'Contato'].map(item => (
               <a
                 key={item}
@@ -556,22 +614,23 @@ const AppContent = () => {
                   e.preventDefault();
                   const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                   const element = document.getElementById(id);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
+                  if (element) element.scrollIntoView({ behavior: 'smooth' });
                 }}
-                onMouseEnter={() => setCursorVariant('hover')}
-                onMouseLeave={() => setCursorVariant('default')}
-                style={{ color: 'var(--muted-text)', textDecoration: 'none', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', cursor: 'none', transition: 'color 0.3s' }}
-                className="hover-link"
+                style={{
+                  color: 'var(--text-color)', textDecoration: 'none', fontSize: '10px',
+                  fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
+                }}
               >
+                {/* Icons could be added here later */}
                 {item}
               </a>
             ))}
-          </div>
-          <ThemeToggle />
-        </div>
-      </nav>
+            <div style={{ width: '1px', height: '20px', background: 'var(--glass-border)' }}></div>
+            <ThemeToggle />
+          </nav>
+        </>
+      )}
 
       {/* HERO */}
       <header style={{ height: '100vh', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -662,7 +721,7 @@ const AppContent = () => {
 
       {/* SOBRE */}
       <section id="sobre" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
-        <div className="glass-luxury" style={{ width: '100%', padding: '60px', borderRadius: '40px', display: 'flex', gap: '60px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="glass-luxury" style={{ width: '100%', padding: isMobile ? '30px' : '60px', borderRadius: '40px', display: 'flex', gap: isMobile ? '30px' : '60px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ flex: '1 1 300px', height: '450px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
             <img src="/alex.jpg" alt="Alex Ascencio" style={{ width: '100%', height: '130%', objectFit: 'cover' }} />
           </div>
@@ -687,15 +746,15 @@ const AppContent = () => {
       </section>
 
       {/* CONTATO - UNIFIED CRYSTAL DASHBOARD */}
-      <section id="contato" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
+      <section id="contato" style={{ paddingTop: '100px', paddingBottom: '120px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
         <div className="glass-luxury" style={{
           width: '100%',
           borderRadius: '40px',
-          padding: '60px',
+          padding: isMobile ? '30px' : '60px',
           display: 'grid',
 
-          gridTemplateColumns: '1fr 1.5fr',
-          gap: '60px',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr',
+          gap: isMobile ? '40px' : '60px',
           background: 'var(--glass-bg)',
           boxShadow: '0 40px 80px var(--glass-shadow), inset 0 1px 0 var(--glass-border)'
         }}>
