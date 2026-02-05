@@ -2,8 +2,6 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
 import useIsMobile from './hooks/useMobile';
 import MobileProjectRow from './components/MobileProjectRow';
-import GalleryView from './components/GalleryView';
-import PhotographyTeaser from './components/PhotographyTeaser';
 
 // --- DADOS (SEUS PROJETOS) ---
 const PROJECTS = [
@@ -29,16 +27,6 @@ const PROJECTS = [
 
 const CATEGORIES = [{ id: 'all', name: 'Todos' }, { id: 'Documentário', name: 'Docs' }, { id: 'Videoclipe', name: 'Clipes' }, { id: 'Cinema', name: 'Cinema' }, { id: 'Bastidores', name: 'Bastidores' }];
 const CLIENTS = ["NOVO TEMPO", "UNASP", "MAB", "PRISMA BRASIL", "KIGER", "CALIFORNIA DREAMS"];
-const PHOTOS = [
-  "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80",
-  "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
-  "https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=800&q=80",
-  "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&q=80",
-  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80",
-  "https://images.unsplash.com/photo-1559583985-14137dd9442a?w=800&q=80",
-  "https://images.unsplash.com/photo-1533518444388-7a8d817ad558?w=800&q=80",
-  "https://images.unsplash.com/photo-1518176258769-f227c798150e?w=800&q=80"
-]; // Placeholder for now, can be replaced with real assets
 
 // --- CONTEXTO DO CURSOR ---
 const CursorContext = createContext();
@@ -457,7 +445,6 @@ const AppContent = () => {
   const [heroIndex, setHeroIndex] = useState(() => Math.floor(Math.random() * PROJECTS.length));
   const [scrolled, setScrolled] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [view, setView] = useState('home'); // 'home' | 'gallery'
 
   useEffect(() => {
     const scrollHandler = () => setScrolled(window.scrollY > 50);
@@ -549,355 +536,351 @@ const AppContent = () => {
       <div className="film-grain"></div>
       <MouseOrb />
 
-      <AnimatePresence mode="wait">
-        {view === 'gallery' ? (
-          <GalleryView key="gallery" photos={PHOTOS} onClose={() => setView('home')} />
-        ) : (
-          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            {/* MENU */}
-            {!isMobile ? (
-              // DESKTOP NAVBAR
-              <nav style={{
-                position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-                width: scrolled ? '560px' : '90%',
-                maxWidth: '1200px', height: '70px',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '0 30px', borderRadius: '50px', zIndex: 100, transition: 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
-              }} className="glass-luxury">
-                {/* LOGO LINK */}
+      <div className="film-grain"></div>
+      <MouseOrb />
+
+      {/* MENU */}
+      {!isMobile ? (
+        // DESKTOP NAVBAR
+        <nav style={{
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          width: scrolled ? '560px' : '90%',
+          maxWidth: '1200px', height: '70px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '0 30px', borderRadius: '50px', zIndex: 100, transition: 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        }} className="glass-luxury">
+          {/* LOGO LINK */}
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            onMouseEnter={() => setCursorVariant('hover')}
+            onMouseLeave={() => setCursorVariant('default')}
+            style={{ textDecoration: 'none', cursor: 'none' }}
+          >
+            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
+              ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
+            </div>
+          </a>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '30px' }}>
+              {['Portfólio', 'Sobre', 'Contato'].map(item => (
                 <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  key={item}
+                  href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const element = document.getElementById(id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                   onMouseEnter={() => setCursorVariant('hover')}
                   onMouseLeave={() => setCursorVariant('default')}
-                  style={{ textDecoration: 'none', cursor: 'none' }}
+                  style={{ color: 'var(--muted-text)', textDecoration: 'none', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', cursor: 'none', transition: 'color 0.3s' }}
+                  className="hover-link"
                 >
-                  <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
-                    ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
-                  </div>
+                  {item}
                 </a>
+              ))}
+            </div>
+            <ThemeToggle />
+          </div>
+        </nav>
+      ) : (
+        // MOBILE NAVBAR (Simple Top Logo + Bottom Dock)
+        <>
+          {/* Top Logo */}
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, height: '60px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 99, background: 'linear-gradient(to bottom, var(--bg-color) 0%, transparent 100%)',
+            pointerEvents: 'none' // Let clicks pass through to underlying elements if needed, but text needs to be visible
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)', textShadow: '0 2px 10px rgba(0,0,0,0.5)', pointerEvents: 'auto' }}>
+              ASCENCIO.<span style={{ color: 'var(--accent-color)' }}>FILMS</span>
+            </div>
+          </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ display: 'flex', gap: '30px' }}>
-                    {['Portfólio', 'Sobre', 'Contato'].map(item => (
-                      <a
-                        key={item}
-                        href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                          const element = document.getElementById(id);
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }}
-                        onMouseEnter={() => setCursorVariant('hover')}
-                        onMouseLeave={() => setCursorVariant('default')}
-                        style={{ color: 'var(--muted-text)', textDecoration: 'none', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', cursor: 'none', transition: 'color 0.3s' }}
-                        className="hover-link"
-                      >
-                        {item}
-                      </a>
-                    ))}
-                  </div>
-                  <ThemeToggle />
-                </div>
-              </nav>
-            ) : (
-              // MOBILE NAVBAR (Simple Top Logo + Bottom Dock)
-              <>
-                {/* Top Logo */}
-                <div style={{
-                  position: 'fixed', top: 0, left: 0, right: 0, height: '60px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  zIndex: 99, background: 'linear-gradient(to bottom, var(--bg-color) 0%, transparent 100%)',
-                  pointerEvents: 'none' // Let clicks pass through to underlying elements if needed, but text needs to be visible
-                }}>
-                  <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)', textShadow: '0 2px 10px rgba(0,0,0,0.5)', pointerEvents: 'auto' }}>
-                    ASCENCIO.<span style={{ color: 'var(--accent-color)' }}>FILMS</span>
-                  </div>
-                </div>
+          {/* Bottom Dock */}
+          <nav style={{
+            position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+            width: '90%', maxWidth: '400px', height: '65px',
+            display: 'flex', justifyContent: 'space-around', alignItems: 'center',
+            padding: '0 10px', borderRadius: '25px', zIndex: 100,
+            background: 'var(--glass-bg)', backdropFilter: 'blur(20px)',
+            border: '1px solid var(--glass-border)', boxShadow: '0 10px 30px var(--glass-shadow)'
+          }}>
+            {['Portfólio', 'Sobre', 'Contato'].map(item => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                  const element = document.getElementById(id);
+                  if (element) element.scrollIntoView({ behavior: 'smooth' });
+                }}
+                style={{
+                  color: 'var(--text-color)', textDecoration: 'none', fontSize: '10px',
+                  fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
+                }}
+              >
+                {/* Icons could be added here later */}
+                {item}
+              </a>
+            ))}
+            <div style={{ width: '1px', height: '20px', background: 'var(--glass-border)' }}></div>
+            <ThemeToggle />
+          </nav>
+        </>
+      )}
 
-                {/* Bottom Dock */}
-                <nav style={{
-                  position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-                  width: '90%', maxWidth: '400px', height: '65px',
-                  display: 'flex', justifyContent: 'space-around', alignItems: 'center',
-                  padding: '0 10px', borderRadius: '25px', zIndex: 100,
-                  background: 'var(--glass-bg)', backdropFilter: 'blur(20px)',
-                  border: '1px solid var(--glass-border)', boxShadow: '0 10px 30px var(--glass-shadow)'
-                }}>
-                  {['Portfólio', 'Sobre', 'Contato'].map(item => (
-                    <a
-                      key={item}
-                      href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const id = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                        const element = document.getElementById(id);
-                        if (element) element.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      style={{
-                        color: 'var(--text-color)', textDecoration: 'none', fontSize: '10px',
-                        fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
-                      }}
-                    >
-                      {/* Icons could be added here later */}
-                      {item}
-                    </a>
-                  ))}
-                  <div style={{ width: '1px', height: '20px', background: 'var(--glass-border)' }}></div>
-                  <ThemeToggle />
-                </nav>
-              </>
-            )}
+      {/* HERO */}
+      <header style={{ height: '100vh', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={heroIndex}
+            initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
+            style={{ position: 'absolute', inset: 0 }}
+          >
+            <img src={PROJECTS[heroIndex].img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, filter: 'blur(12px) brightness(0.8)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, transparent 0%, var(--bg-color) 90%)' }}></div>
+          </motion.div>
+        </AnimatePresence>
 
-            {/* HERO */}
-            <header style={{ height: '100vh', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={heroIndex}
-                  initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
-                  style={{ position: 'absolute', inset: 0 }}
-                >
-                  <img src={PROJECTS[heroIndex].img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, filter: 'blur(12px) brightness(0.8)' }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, transparent 0%, var(--bg-color) 90%)' }}></div>
-                </motion.div>
-              </AnimatePresence>
+        <div style={{ position: 'relative', zIndex: 20, textAlign: 'center', padding: '0 20px', maxWidth: '1000px' }}>
+          <motion.div key={`text-${heroIndex}`} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
+            <span style={{ color: 'var(--accent-color)', fontSize: '12px', fontWeight: 800, letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '20px', display: 'block' }}>FILMMAKER | EDITOR</span>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 900, lineHeight: 0.9, marginBottom: '30px', textTransform: 'uppercase', textShadow: '0 20px 50px var(--glass-shadow)', color: 'var(--text-color)' }}
+              onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+            >
+              {PROJECTS[heroIndex].title}
+            </h1>
+            <p style={{ fontSize: '18px', color: 'var(--muted-text)', marginBottom: '40px', fontWeight: 300, maxWidth: '600px', margin: '0 auto 40px' }}
+              onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+            >
+              Transformando ideias em cinema.
+            </p>
+            <button
+              onClick={() => setActiveModal(PROJECTS[heroIndex].url)}
+              onMouseEnter={() => setCursorVariant('hover')}
+              onMouseLeave={() => setCursorVariant('default')}
+              className="glass-btn"
+              style={{ padding: '16px 40px', borderRadius: '50px', fontSize: '12px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' }}
+            >
+              Assistir
+            </button>
+          </motion.div>
+        </div>
+      </header>
 
-              <div style={{ position: 'relative', zIndex: 20, textAlign: 'center', padding: '0 20px', maxWidth: '1000px' }}>
-                <motion.div key={`text-${heroIndex}`} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-                  <span style={{ color: 'var(--accent-color)', fontSize: '12px', fontWeight: 800, letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '20px', display: 'block' }}>FILMMAKER | EDITOR</span>
-                  <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 900, lineHeight: 0.9, marginBottom: '30px', textTransform: 'uppercase', textShadow: '0 20px 50px var(--glass-shadow)', color: 'var(--text-color)' }}
-                    onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                  >
-                    {PROJECTS[heroIndex].title}
-                  </h1>
-                  <p style={{ fontSize: '18px', color: 'var(--muted-text)', marginBottom: '40px', fontWeight: 300, maxWidth: '600px', margin: '0 auto 40px' }}
-                    onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                  >
-                    Transformando ideias em cinema.
-                  </p>
-                  <button
-                    onClick={() => setActiveModal(PROJECTS[heroIndex].url)}
-                    onMouseEnter={() => setCursorVariant('hover')}
-                    onMouseLeave={() => setCursorVariant('default')}
-                    className="glass-btn"
-                    style={{ padding: '16px 40px', borderRadius: '50px', fontSize: '12px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' }}
-                  >
-                    Assistir
-                  </button>
-                </motion.div>
-              </div>
-            </header>
+      {/* MARQUEE */}
+      <div className="glass-luxury" style={{ padding: '30px 0', borderLeft: 'none', borderRight: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'inline-block', animation: 'scroll 25s linear infinite' }}>
+          {[...CLIENTS, ...CLIENTS, ...CLIENTS].map((c, i) => (
+            <span key={i} className="glass-luxury" style={{
+              display: 'inline-block',
+              padding: '12px 30px',
+              borderRadius: '50px',
+              fontSize: '16px',
+              fontWeight: 800,
+              color: 'var(--text-color)',
+              marginRight: '40px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              border: '1px solid var(--glass-border)',
+              background: 'var(--glass-bg)'
+            }}>
+              {c}
+            </span>
+          ))}
+        </div>
+        <style>{`@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
+      </div>
 
-            {/* MARQUEE */}
-            <div className="glass-luxury" style={{ padding: '30px 0', borderLeft: 'none', borderRight: 'none', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              <div style={{ display: 'inline-block', animation: 'scroll 25s linear infinite' }}>
-                {[...CLIENTS, ...CLIENTS, ...CLIENTS].map((c, i) => (
-                  <span key={i} className="glass-luxury" style={{
-                    display: 'inline-block',
-                    padding: '12px 30px',
-                    borderRadius: '50px',
-                    fontSize: '16px',
-                    fontWeight: 800,
-                    color: 'var(--text-color)',
-                    marginRight: '40px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    border: '1px solid var(--glass-border)',
-                    background: 'var(--glass-bg)'
-                  }}>
-                    {c}
-                  </span>
-                ))}
-              </div>
-              <style>{`@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
+      {/* PORTFOLIO */}
+      <section id="portfolio" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '60px' }}>
+          <h2 style={{ fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 900, textTransform: 'uppercase', lineHeight: 0.9 }}>Portfólio</h2>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                onMouseEnter={() => setCursorVariant('hover')}
+                onMouseLeave={() => setCursorVariant('default')}
+                className="glass-btn"
+                style={{ padding: '10px 20px', borderRadius: '30px', fontSize: '11px', fontWeight: 700, background: selectedCategory === cat.id ? 'var(--accent-color)' : 'var(--glass-bg)', color: selectedCategory === cat.id ? '#fff' : 'var(--glass-text-color)' }}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {isMobile && selectedCategory === 'all' ? (
+          // NETFLIX STYLE MOBILE VIEW
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginLeft: '-20px', marginRight: '-20px' }}>
+            {CATEGORIES.filter(c => c.id !== 'all').map(cat => {
+              const catProjects = PROJECTS.filter(p => p.category === cat.id);
+              if (catProjects.length === 0) return null;
+              return (
+                <MobileProjectRow
+                  key={cat.id}
+                  title={cat.name}
+                  projects={catProjects}
+                  onProjectClick={(p) => setActiveModal(p.url)}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          // STANDARD GRID VIEW (Desktop or Filtered Mobile)
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))', gap: '40px' }}>
+            {filteredProjects.map(p => <TiltCard key={p.id} project={p} onClick={(proj) => setActiveModal(proj.url)} />)}
+          </div>
+        )}
+      </section>
+
+      {/* SOBRE */}
+      <section id="sobre" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
+        <div className="glass-luxury" style={{ width: '100%', padding: isMobile ? '30px' : '60px', borderRadius: '40px', display: 'flex', gap: isMobile ? '30px' : '60px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: '1 1 300px', height: '450px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <img src="/alex.jpg" alt="Alex Ascencio" style={{ width: '100%', height: '130%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ flex: '1 1 400px' }}>
+            <h2 style={{ fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 900, lineHeight: 1, marginBottom: '30px', textTransform: 'uppercase', color: 'var(--text-color)' }}
+              onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+            >
+              Visão.<br /><span style={{ color: 'var(--accent-color)' }}>Técnica.</span><br />Impacto.
+            </h2>
+            <p style={{ color: 'var(--muted-text)', fontSize: '18px', lineHeight: 1.6, marginBottom: '30px' }}
+              onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+            >
+              Fundada por <strong>Alex Ascencio</strong>, a <strong>Ascencio Films</strong> carrega a chancela do prêmio <strong>EXPOCOM 2025</strong> e a expertise técnica adquirida em produções globais, como as turnês do <strong>Prisma Brasil</strong>. Aqui, a edição não é apenas técnica, é a ferramenta que traduz grandes histórias em conexões humanas profundas.
+            </p>
+            <div style={{ display: 'flex', gap: '15px' }}>
+              {['Vencedor EXPOCOM', 'Direção', 'Edição'].map(tag => (
+                <span key={tag} style={{ padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--glass-border)', fontSize: '12px', fontWeight: 600, color: 'var(--muted-text)' }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CONTATO - UNIFIED CRYSTAL DASHBOARD */}
+      <section id="contato" style={{ paddingTop: '100px', paddingBottom: '120px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
+        <div className="glass-luxury" style={{
+          width: '100%',
+          borderRadius: '40px',
+          padding: isMobile ? '30px' : '60px',
+          display: 'grid',
+
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr',
+          gap: isMobile ? '40px' : '60px',
+          background: 'var(--glass-bg)',
+          boxShadow: '0 40px 80px var(--glass-shadow), inset 0 1px 0 var(--glass-border)'
+        }}>
+
+          {/* Lado Esquerdo - Social */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '40px' }}>
+            <div>
+              <h2 style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 0.9, textTransform: 'uppercase', marginBottom: '10px', color: 'var(--text-color)' }}
+                onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}>
+                Fale<br /><span style={{ color: 'var(--accent-color)' }}>Comigo.</span>
+              </h2>
+              <p style={{ color: 'var(--muted-text)', fontSize: '14px', maxWidth: '300px' }}
+                onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}>
+                Vamos criar algo extraordinário juntos. Escolha sua plataforma preferida.
+              </p>
             </div>
 
-            {/* PORTFOLIO */}
-            <section id="portfolio" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', marginBottom: '60px' }}>
-                <h2 style={{ fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 900, textTransform: 'uppercase', lineHeight: 0.9 }}>Portfólio</h2>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  {CATEGORIES.map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      onMouseEnter={() => setCursorVariant('hover')}
-                      onMouseLeave={() => setCursorVariant('default')}
-                      className="glass-btn"
-                      style={{ padding: '10px 20px', borderRadius: '30px', fontSize: '11px', fontWeight: 700, background: selectedCategory === cat.id ? 'var(--accent-color)' : 'var(--glass-bg)', color: selectedCategory === cat.id ? '#fff' : 'var(--glass-text-color)' }}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
+              <SocialTile
+                href="https://wa.me/5515997569880" color="#25D366" label="WhatsApp"
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>}
+              />
+              <SocialTile
+                href="https://instagram.com/alexgabriel_ascencio" color="#E1306C" label="Instagram"
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>}
+              />
+              <SocialTile
+                href="https://www.linkedin.com/in/ascencioalexgabriel/" color="#0077B5" label="LinkedIn"
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>}
+              />
+            </div>
+          </div>
+
+          {/* Lado Direito - Form (Redesign Minimalista) */}
+          <div style={{ background: 'var(--glass-bg)', padding: '40px', borderRadius: '30px', border: '1px solid var(--glass-border)' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '30px', color: 'var(--glass-text-color)' }}>Envie uma Mensagem</h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const name = e.target.name.value;
+              const email = e.target.email.value;
+              const message = e.target.message.value;
+              const text = `Olá, Alex! Me chamo *${name}* (${email}).%0A%0A*Mensagem:*%0A${message}`;
+              window.open(`https://wa.me/5515997569880?text=${text}`, '_blank');
+            }} style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+              <div style={{ position: 'relative' }}>
+                <input type="text" name="name" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#ffffff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s' }} placeholder="SEU NOME"
+                  onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
+                  onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
+                  onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+                />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <input type="email" name="email" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#ffffff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s' }} placeholder="SEU EMAIL"
+                  onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
+                  onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
+                  onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+                />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <textarea name="message" rows="4" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#fff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s', resize: 'none', fontFamily: 'inherit' }} placeholder="SUA IDEIA"
+                  onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
+                  onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
+                  onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
+                />
               </div>
 
-              {isMobile && selectedCategory === 'all' ? (
-                // NETFLIX STYLE MOBILE VIEW
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginLeft: '-20px', marginRight: '-20px' }}>
-                  {CATEGORIES.filter(c => c.id !== 'all').map(cat => {
-                    const catProjects = PROJECTS.filter(p => p.category === cat.id);
-                    if (catProjects.length === 0) return null;
-                    return (
-                      <MobileProjectRow
-                        key={cat.id}
-                        title={cat.name}
-                        projects={catProjects}
-                        onProjectClick={(p) => setActiveModal(p.url)}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                // STANDARD GRID VIEW (Desktop or Filtered Mobile)
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))', gap: '40px' }}>
-                  {filteredProjects.map(p => <TiltCard key={p.id} project={p} onClick={(proj) => setActiveModal(proj.url)} />)}
-                </div>
-              )}
-            </section>
+              <button
+                type="submit"
+                className="glass-btn"
+                onMouseEnter={() => setCursorVariant('hover')}
+                onMouseLeave={() => setCursorVariant('default')}
+                style={{ marginTop: '20px', padding: '20px', borderRadius: '15px', fontWeight: 800, background: '#fff', color: '#000', fontSize: '12px', letterSpacing: '3px', textTransform: 'uppercase', border: 'none' }}
+              >
+                Confirmar Envio
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
 
-            {/* SOBRE */}
-            <section id="sobre" style={{ paddingTop: '100px', paddingBottom: '100px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
-              <div className="glass-luxury" style={{ width: '100%', padding: isMobile ? '30px' : '60px', borderRadius: '40px', display: 'flex', gap: isMobile ? '30px' : '60px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div style={{ flex: '1 1 300px', height: '450px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <img src="/alex.jpg" alt="Alex Ascencio" style={{ width: '100%', height: '130%', objectFit: 'cover' }} />
-                </div>
-                <div style={{ flex: '1 1 400px' }}>
-                  <h2 style={{ fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 900, lineHeight: 1, marginBottom: '30px', textTransform: 'uppercase', color: 'var(--text-color)' }}
-                    onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                  >
-                    Visão.<br /><span style={{ color: 'var(--accent-color)' }}>Técnica.</span><br />Impacto.
-                  </h2>
-                  <p style={{ color: 'var(--muted-text)', fontSize: '18px', lineHeight: 1.6, marginBottom: '30px' }}
-                    onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                  >
-                    Fundada por <strong>Alex Ascencio</strong>, a <strong>Ascencio Films</strong> carrega a chancela do prêmio <strong>EXPOCOM 2025</strong> e a expertise técnica adquirida em produções globais, como as turnês do <strong>Prisma Brasil</strong>. Aqui, a edição não é apenas técnica, é a ferramenta que traduz grandes histórias em conexões humanas profundas.
-                  </p>
-                  <div style={{ display: 'flex', gap: '15px' }}>
-                    {['Vencedor EXPOCOM', 'Direção', 'Edição'].map(tag => (
-                      <span key={tag} style={{ padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--glass-border)', fontSize: '12px', fontWeight: 600, color: 'var(--muted-text)' }}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
+      <footer style={{ padding: '60px', textAlign: 'center', color: '#555', fontSize: '12px', fontWeight: 700, letterSpacing: '2px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        © 2026 ASCENCIO FILMS.
+      </footer>
 
-            {/* CONTATO - UNIFIED CRYSTAL DASHBOARD */}
-            <section id="contato" style={{ paddingTop: '100px', paddingBottom: '120px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
-              <div className="glass-luxury" style={{
-                width: '100%',
-                borderRadius: '40px',
-                padding: isMobile ? '30px' : '60px',
-                display: 'grid',
+      {activeModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setActiveModal(null)}>
+          <div className="glass-luxury" style={{ width: '90%', maxWidth: '1200px', aspectRatio: '16/9', borderRadius: '20px', overflow: 'hidden', position: 'relative' }}>
+            <iframe src={`${activeModal}?autoplay=1`} style={{ width: '100%', height: '100%', border: 'none' }} allow="autoplay" allowFullScreen />
+            <button
+              onClick={() => setActiveModal(null)}
+              onMouseEnter={() => setCursorVariant('hover')}
+              onMouseLeave={() => setCursorVariant('default')}
+              style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: 700 }}
+            >
+              FECHAR
+            </button>
+          </div>
+        </div>
+      )}
 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr',
-                gap: isMobile ? '40px' : '60px',
-                background: 'var(--glass-bg)',
-                boxShadow: '0 40px 80px var(--glass-shadow), inset 0 1px 0 var(--glass-border)'
-              }}>
-
-                {/* Lado Esquerdo - Social */}
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '40px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 0.9, textTransform: 'uppercase', marginBottom: '10px', color: 'var(--text-color)' }}
-                      onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}>
-                      Fale<br /><span style={{ color: 'var(--accent-color)' }}>Comigo.</span>
-                    </h2>
-                    <p style={{ color: 'var(--muted-text)', fontSize: '14px', maxWidth: '300px' }}
-                      onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}>
-                      Vamos criar algo extraordinário juntos. Escolha sua plataforma preferida.
-                    </p>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
-                    <SocialTile
-                      href="https://wa.me/5515997569880" color="#25D366" label="WhatsApp"
-                      icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>}
-                    />
-                    <SocialTile
-                      href="https://instagram.com/alexgabriel_ascencio" color="#E1306C" label="Instagram"
-                      icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>}
-                    />
-                    <SocialTile
-                      href="https://www.linkedin.com/in/ascencioalexgabriel/" color="#0077B5" label="LinkedIn"
-                      icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>}
-                    />
-                  </div>
-                </div>
-
-                {/* Lado Direito - Form (Redesign Minimalista) */}
-                <div style={{ background: 'var(--glass-bg)', padding: '40px', borderRadius: '30px', border: '1px solid var(--glass-border)' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '30px', color: 'var(--text-color)' }}>Envie uma Mensagem</h3>
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const name = e.target.name.value;
-                    const email = e.target.email.value;
-                    const message = e.target.message.value;
-                    const text = `Olá, Alex! Me chamo *${name}* (${email}).%0A%0A*Mensagem:*%0A${message}`;
-                    window.open(`https://wa.me/5515997569880?text=${text}`, '_blank');
-                  }} style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                    <div style={{ position: 'relative' }}>
-                      <input type="text" name="name" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#ffffff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s' }} placeholder="SEU NOME"
-                        onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
-                        onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
-                        onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                      />
-                    </div>
-                    <div style={{ position: 'relative' }}>
-                      <input type="email" name="email" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#ffffff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s' }} placeholder="SEU EMAIL"
-                        onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
-                        onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
-                        onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                      />
-                    </div>
-                    <div style={{ position: 'relative' }}>
-                      <textarea name="message" rows="4" required style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--glass-border)', color: '#fff', fontSize: '16px', padding: '10px 0', outline: 'none', transition: '0.3s', resize: 'none', fontFamily: 'inherit' }} placeholder="SUA IDEIA"
-                        onFocus={(e) => e.target.style.borderBottom = '1px solid var(--accent-color)'}
-                        onBlur={(e) => e.target.style.borderBottom = '1px solid var(--glass-border)'}
-                        onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="glass-btn"
-                      onMouseEnter={() => setCursorVariant('hover')}
-                      onMouseLeave={() => setCursorVariant('default')}
-                      style={{ marginTop: '20px', padding: '20px', borderRadius: '15px', fontWeight: 800, background: '#fff', color: '#000', fontSize: '12px', letterSpacing: '3px', textTransform: 'uppercase', border: 'none' }}
-                    >
-                      Confirmar Envio
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </section>
-
-            <footer style={{ padding: '60px', textAlign: 'center', color: '#555', fontSize: '12px', fontWeight: 700, letterSpacing: '2px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-              © 2026 ASCENCIO FILMS.
-            </footer>
-
-            {activeModal && (
-              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setActiveModal(null)}>
-                <div className="glass-luxury" style={{ width: '90%', maxWidth: '1200px', aspectRatio: '16/9', borderRadius: '20px', overflow: 'hidden', position: 'relative' }}>
-                  <iframe src={`${activeModal}?autoplay=1`} style={{ width: '100%', height: '100%', border: 'none' }} allow="autoplay" allowFullScreen />
-                  <button
-                    onClick={() => setActiveModal(null)}
-                    onMouseEnter={() => setCursorVariant('hover')}
-                    onMouseLeave={() => setCursorVariant('default')}
-                    style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: 700 }}
-                  >
-                    FECHAR
-                  </button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style>{`
          .hide-scrollbar::-webkit-scrollbar { display: none; }
