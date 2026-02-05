@@ -438,7 +438,7 @@ const AppContent = () => {
   const isMobile = useIsMobile();
   const { setCursorVariant } = useCursor();
   const [activeModal, setActiveModal] = useState(null);
-  const [heroIndex, setHeroIndex] = useState(0);
+  const [heroIndex, setHeroIndex] = useState(() => Math.floor(Math.random() * PROJECTS.length));
   const [scrolled, setScrolled] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
