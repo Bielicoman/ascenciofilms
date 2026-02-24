@@ -140,7 +140,7 @@ const MouseOrb = () => {
     default: {
       width: 20,
       height: 20,
-      borderRadius: '50%',
+      borderRadius: '50% 50% 50% 50%',
       backgroundColor: bgColor,
       border: `1px solid ${borderColor}`,
       rotate: 0,
@@ -160,7 +160,7 @@ const MouseOrb = () => {
     text: {
       width: 4,
       height: 30,
-      borderRadius: '4px',
+      borderRadius: '4px 4px 4px 4px',
       backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)',
       border: 'none',
       rotate: 0,
@@ -178,10 +178,10 @@ const MouseOrb = () => {
       variants={variants}
       animate={!isVisible ? 'hidden' : cursorVariant}
       transition={{
-        type: 'spring',
-        stiffness: 500,
-        damping: 28,
-        mass: 0.4
+        default: { type: 'spring', stiffness: 500, damping: 28, mass: 0.4 },
+        borderRadius: { type: 'tween', duration: 0.12, ease: 'easeOut' },
+        rotate: { type: 'tween', duration: 0.15, ease: 'easeOut' },
+        opacity: { type: 'tween', duration: 0.15 },
       }}
       style={{
         position: 'fixed',
