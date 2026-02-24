@@ -992,7 +992,7 @@ const AppContent = () => {
         </div>
         {/* Behold.so widget — substitua SEU_WIDGET_ID pelo ID do seu painel Behold */}
         <div style={{ borderRadius: '24px', overflow: 'hidden' }}>
-          <behold-widget feed-id="SEU_WIDGET_ID"></behold-widget>
+          <behold-widget feed-id="Nc4L3CKxxfIUqr3Ae0w3"></behold-widget>
         </div>
       </section>
 
