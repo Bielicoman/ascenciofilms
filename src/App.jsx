@@ -751,8 +751,8 @@ const AppContent = () => {
             onMouseLeave={() => setCursorVariant('default')}
             style={{ textDecoration: 'none', cursor: 'none' }}
           >
-            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--glass-text-color)' }}>
-              ASCENCIO<span style={{ color: 'var(--accent-color)' }}>.FX</span>
+            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+              <img src="/favicon.png" alt="ASCENCIO.FX Logo" style={{ height: '32px', width: 'auto' }} />
             </div>
           </a>
 
@@ -792,8 +792,8 @@ const AppContent = () => {
             zIndex: 99, background: 'linear-gradient(to bottom, var(--bg-color) 0%, transparent 100%)',
             pointerEvents: 'none' // Let clicks pass through to underlying elements if needed, but text needs to be visible
           }}>
-            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)', textShadow: '0 2px 10px rgba(0,0,0,0.5)', pointerEvents: 'auto' }}>
-              ASCENCIO<span style={{ color: 'var(--accent-color)' }}>.FX</span>
+            <div style={{ height: '24px', pointerEvents: 'auto' }}>
+              <img src="/favicon.png" alt="ASCENCIO.FX Logo" style={{ height: '100%', width: 'auto' }} />
             </div>
           </div>
 
