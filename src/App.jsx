@@ -204,7 +204,7 @@ const MouseOrb = () => {
         x: mouseX,
         y: mouseY,
         pointerEvents: 'none',
-        zIndex: 9999,
+        zIndex: 99999,
         translateX: '-50%',
         translateY: '-50%',
         backdropFilter: 'blur(4px)',
@@ -571,6 +571,8 @@ const ShortsViewer = ({ items, startIndex = 0, onClose, mode = 'youtube' }) => {
               allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture"
               allowFullScreen title={`item-${currentIndex}`}
             />
+            {/* Transparent overlay so window.mousemove keeps firing (iframe steals events otherwise) */}
+            <div style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
           </motion.div>
         </AnimatePresence>
 
