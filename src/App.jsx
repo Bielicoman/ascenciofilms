@@ -322,7 +322,12 @@ const TiltCard = ({ project, onClick }) => {
             whileHover={{ scale: 1.1 }}
           />
         )}
+        {/* Gradient overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-color) 0%, transparent 80%)', pointerEvents: 'none' }}></div>
+        {/* Cursor capture overlay — prevents iframe from showing default cursor */}
+        {isHovered && !isMobile && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 10, cursor: 'none' }} />
+        )}
       </div>
 
       {/* TEXTO (Flutuando acima - CINE MODE) */}
