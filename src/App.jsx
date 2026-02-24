@@ -298,7 +298,7 @@ const TiltCard = ({ project, onClick }) => {
       <div style={{ position: 'absolute', inset: 0, transform: 'translateZ(20px)', borderRadius: '20px', overflow: 'hidden' }}>
         {isHovered && !isMobile ? (
           <iframe
-            src={`${project.url}?autoplay=1&rel=0&modestbranding=1&controls=0`}
+            src={`${project.url}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0`}
             style={{ width: '100%', height: '100%', border: 'none', position: 'absolute', inset: 0 }}
             allow="autoplay; fullscreen"
             allowFullScreen
@@ -964,7 +964,7 @@ const AppContent = () => {
         </div>
       </section>
 
-      {/* INSTAGRAM FEED */}
+      {/* INSTAGRAM FEED — Behold.so auto-updating widget */}
       <section id="instagram" style={{ paddingTop: '100px', paddingBottom: '60px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
@@ -990,49 +990,9 @@ const AppContent = () => {
             Ver Perfil
           </a>
         </div>
-
-        {/* 3×3 Grid of Instagram embeds */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '16px' }}>
-          {INSTAGRAM_POSTS.map((post, idx) => (
-            <motion.div
-              key={post.id}
-              whileHover={{ scale: 1.02, y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShorts({ open: true, index: idx, mode: 'instagram' })}
-              onMouseEnter={() => setCursorVariant('hover')}
-              onMouseLeave={() => setCursorVariant('default')}
-              style={{
-                position: 'relative', aspectRatio: '1/1', borderRadius: '16px',
-                overflow: 'hidden', cursor: 'none',
-                border: '1px solid var(--glass-border)',
-                boxShadow: '0 8px 32px var(--glass-shadow)',
-              }}
-            >
-              <iframe
-                src={`https://www.instagram.com/p/${post.shortcode}/embed/`}
-                style={{ width: '100%', height: '150%', border: 'none', marginTop: '-10%', pointerEvents: 'none' }}
-                scrolling="no"
-                title={`instagram-${post.id}`}
-              />
-              {/* Click overlay */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)',
-              }} />
-              <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '5px',
-                  padding: '5px 12px', borderRadius: '20px',
-                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  fontSize: '10px', fontWeight: 700, color: '#fff', letterSpacing: '1px',
-                }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                  Ver
-                </span>
-              </div>
-            </motion.div>
-          ))}
+        {/* Behold.so widget — substitua SEU_WIDGET_ID pelo ID do seu painel Behold */}
+        <div style={{ borderRadius: '24px', overflow: 'hidden' }}>
+          <behold-widget feed-id="SEU_WIDGET_ID"></behold-widget>
         </div>
       </section>
 
