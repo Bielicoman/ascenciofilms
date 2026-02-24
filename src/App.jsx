@@ -531,6 +531,7 @@ const ShortsViewer = ({ items, startIndex = 0, onClose, mode = 'youtube' }) => {
         position: 'fixed', inset: 0, zIndex: 10000,
         background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(24px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'none',
       }}
     >
       {/* CLOSE */}
@@ -990,9 +991,9 @@ const AppContent = () => {
             Ver Perfil
           </a>
         </div>
-        {/* Behold.so widget — substitua SEU_WIDGET_ID pelo ID do seu painel Behold */}
-        <div style={{ borderRadius: '24px', overflow: 'hidden' }}>
-          <behold-widget feed-id="Nc4L3CKxxfIUqr3Ae0w3"></behold-widget>
+        {/* Behold.so widget — atualiza automaticamente quando você posta no Instagram */}
+        <div style={{ borderRadius: '24px', overflow: 'hidden', width: '100%', minHeight: '600px' }}>
+          <behold-widget feed-id="Nc4L3CKxxfIUqr3Ae0w3" style={{ display: 'block', width: '100%' }}></behold-widget>
         </div>
       </section>
 
