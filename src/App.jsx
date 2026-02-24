@@ -101,46 +101,46 @@ const useTheme = () => useContext(ThemeContext);
 const MouseOrb = () => {
   const isMobile = useIsMobile();
   const { cursorVariant } = useCursor();
-  const { theme } = useTheme(); // Access Theme
-
-  if (isMobile) return null;
+  const { theme } = useTheme();
 
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Stable handler — no stale closure on isVisible
     const moveCursor = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
     };
-
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
-    window.addEventListener("mousemove", moveCursor);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mouseenter", handleMouseEnter);
+    window.addEventListener('mousemove', moveCursor);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
 
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      document.removeEventListener("mouseenter", handleMouseEnter);
+      window.removeEventListener('mousemove', moveCursor);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
     };
-  }, [isVisible]);
+  }, []); // Empty deps — listeners registered once, never torn down unnecessarily
 
-  // Dynamic Colors based on Theme
+  // Early return AFTER all hooks
+  if (isMobile) return null;
+
   const borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)';
   const borderHover = theme === 'dark' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)';
-  const bgColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
-  const bgHover = theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
+  const bgColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.07)';
+  const bgHover = theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.12)';
 
   const variants = {
     default: {
       width: 20,
       height: 20,
-      borderRadius: '50% 50% 50% 50%',
+      borderRadius: '50%',
       backgroundColor: bgColor,
       border: `1px solid ${borderColor}`,
       rotate: 0,
@@ -170,7 +170,6 @@ const MouseOrb = () => {
     hidden: {
       opacity: 0,
       scale: 0.5,
-      transition: { duration: 0.2 }
     }
   };
 
@@ -179,10 +178,10 @@ const MouseOrb = () => {
       variants={variants}
       animate={!isVisible ? 'hidden' : cursorVariant}
       transition={{
-        type: "spring",
+        type: 'spring',
         stiffness: 500,
-        damping: 30,
-        mass: 0.5
+        damping: 28,
+        mass: 0.4
       }}
       style={{
         position: 'fixed',
@@ -195,11 +194,12 @@ const MouseOrb = () => {
         translateX: '-50%',
         translateY: '-50%',
         backdropFilter: 'blur(4px)',
-        boxShadow: '0 2px 16px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.4)',
+        boxShadow: '0 2px 16px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.4)',
       }}
     />
   );
 };
+
 
 // 2. CARD 3D (COM GLARE E PARALLAX)
 const TiltCard = ({ project, onClick }) => {
