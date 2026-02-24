@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { motion, AnimatePresence, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
 import useIsMobile from './hooks/useMobile';
 import MobileProjectRow from './components/MobileProjectRow';
 
