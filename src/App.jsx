@@ -78,7 +78,7 @@ const ThemeProvider = ({ children }) => {
       root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.03)');
       root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.1)');
       root.style.setProperty('--glass-shadow', 'rgba(0, 0, 0, 0.5)');
-      root.style.setProperty('--accent-color', '#2997FF');
+      root.style.setProperty('--accent-color', '#C41230');
       root.style.setProperty('--muted-text', '#cccccc');
       root.style.setProperty('--glass-text-color', '#ffffff'); // New: Text inside glass is always white
     } else {
@@ -88,7 +88,7 @@ const ThemeProvider = ({ children }) => {
       root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.72)');
       root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.08)');
       root.style.setProperty('--glass-shadow', 'rgba(0, 0, 0, 0.1)');
-      root.style.setProperty('--accent-color', '#0071E3');
+      root.style.setProperty('--accent-color', '#B01028');
       root.style.setProperty('--muted-text', '#6E6E73');
       root.style.setProperty('--glass-text-color', '#1D1D1F');
     }
