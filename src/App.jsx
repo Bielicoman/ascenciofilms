@@ -23,7 +23,6 @@ const PROJECTS = [
   { id: 16, title: "OH, QUÃO LINDO ESSE NOME É", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/GWZWbLaovLY/maxresdefault.jpg", url: "https://www.youtube.com/embed/GWZWbLaovLY" },
   { id: 17, title: "REPORTAGEM REVISTA NT AICOM", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/4GKvcH-o55M/maxresdefault.jpg", url: "https://www.youtube.com/embed/4GKvcH-o55M" },
   { id: 18, title: "O MELHOR DE MIM - MAKING OF", category: "Bastidores", quality: "4K", img: "https://img.youtube.com/vi/TD3uPps-RQ4/maxresdefault.jpg", url: "https://www.youtube.com/embed/TD3uPps-RQ4" },
-  { id: 19, title: "CONTINUE EM FRENTE", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/2MzGgwFq6tA/maxresdefault.jpg", url: "https://www.youtube.com/embed/2MzGgwFq6tA" },
 ];
 
 const CATEGORIES = [
@@ -179,7 +178,12 @@ const MouseOrb = () => {
     <motion.div
       variants={variants}
       animate={!isVisible ? 'hidden' : cursorVariant}
-      transition={{ type: "tween", duration: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+        mass: 0.5
+      }}
       style={{
         position: 'fixed',
         top: 0,
