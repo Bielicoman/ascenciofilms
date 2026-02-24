@@ -1,31 +1,39 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { motion, AnimatePresence, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useMotionTemplate } from 'framer-motion';
 import useIsMobile from './hooks/useMobile';
 import MobileProjectRow from './components/MobileProjectRow';
 
 // --- DADOS (SEUS PROJETOS) ---
 const PROJECTS = [
   { id: 1, title: "CICATRIZES", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/NwesZCYbSx0/maxresdefault.jpg", url: "https://www.youtube.com/embed/NwesZCYbSx0" },
-  { id: 2, title: "SAUDADE", category: "Videoclipe", quality: "4K", img: "https://img.youtube.com/vi/Mul19Lfeo7Y/maxresdefault.jpg", url: "https://www.youtube.com/embed/Mul19Lfeo7Y" },
+  { id: 2, title: "SAUDADE", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/Mul19Lfeo7Y/maxresdefault.jpg", url: "https://www.youtube.com/embed/Mul19Lfeo7Y" },
   { id: 3, title: "O ORÁCULO", category: "Reality Show", quality: "HD", img: "https://img.youtube.com/vi/efa_PSKMHLk/maxresdefault.jpg", url: "https://www.youtube.com/embed/efa_PSKMHLk" },
   { id: 4, title: "BÁRBARA", category: "Cinema", quality: "4K", img: "https://img.youtube.com/vi/p6SIYQ2c2Bw/maxresdefault.jpg", url: "https://www.youtube.com/embed/p6SIYQ2c2Bw" },
   { id: 5, title: "O PESO DAS PALAVRAS", category: "Cinema", quality: "4K", img: "https://img.youtube.com/vi/h5vbvGte3oM/maxresdefault.jpg", url: "https://www.youtube.com/embed/h5vbvGte3oM" },
-  { id: 6, title: "CICATRIZES -   MAKING OF", category: "Bastidores", quality: "HD", img: "https://img.youtube.com/vi/lJT58HZHD7g/maxresdefault.jpg", url: "https://www.youtube.com/embed/lJT58HZHD7g" },
-  { id: 7, title: "LEMBRA", category: "Videoclipe", quality: "4K", img: "https://img.youtube.com/vi/DAglqbQTK4c/maxresdefault.jpg", url: "https://www.youtube.com/embed/DAglqbQTK4c" },
+  { id: 6, title: "CICATRIZES - MAKING OF", category: "Bastidores", quality: "HD", img: "https://img.youtube.com/vi/lJT58HZHD7g/maxresdefault.jpg", url: "https://www.youtube.com/embed/lJT58HZHD7g" },
+  { id: 7, title: "LEMBRA", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/DAglqbQTK4c/maxresdefault.jpg", url: "https://www.youtube.com/embed/DAglqbQTK4c" },
   { id: 8, title: "PRISMA BRASIL", category: "Turnê EUA", quality: "4K", img: "https://img.youtube.com/vi/g2MK7F0Adqc/maxresdefault.jpg", url: "https://www.youtube.com/embed/g2MK7F0Adqc" },
-  { id: 9, title: "NÃO ME ENVERGONHO DO EVANGÉLIO", category: "Cinema", quality: "4K", img: "https://img.youtube.com/vi/ijf0p0naTcg/maxresdefault.jpg", url: "https://www.youtube.com/embed/ijf0p0naTcg" },
-  { id: 10, title: "HOSPEDANDO ANJOS SEM SABER", category: "Cinema", quality: "4K", img: "https://img.youtube.com/vi/htIKc_vVDt0/maxresdefault.jpg", url: "https://www.youtube.com/embed/htIKc_vVDt0" },
-  { id: 11, title: "O NOME", category: "Cinema", quality: "4K", img: "https://img.youtube.com/vi/bWVmk45mSl8/maxresdefault.jpg", url: "https://www.youtube.com/embed/bWVmk45mSl8" },
+  { id: 9, title: "NÃO ME ENVERGONHO DO EVANGÉLIO", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/ijf0p0naTcg/maxresdefault.jpg", url: "https://www.youtube.com/embed/ijf0p0naTcg" },
+  { id: 10, title: "HOSPEDANDO ANJOS SEM SABER", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/htIKc_vVDt0/maxresdefault.jpg", url: "https://www.youtube.com/embed/htIKc_vVDt0" },
+  { id: 11, title: "O NOME", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/bWVmk45mSl8/maxresdefault.jpg", url: "https://www.youtube.com/embed/bWVmk45mSl8" },
   { id: 12, title: "REPORTAGEM REVISTA NT OBREIROS APSO", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/ve98tQXXLiQ/maxresdefault.jpg", url: "https://www.youtube.com/embed/ve98tQXXLiQ" },
   { id: 13, title: "MEDITAÇÃO PATRÍCIA DE PAIVA", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/R8s2cjlf98k/maxresdefault.jpg", url: "https://www.youtube.com/embed/R8s2cjlf98k" },
-  { id: 14, title: "GRATIDÃO", category: "Video clipe", quality: "4K", img: "https://img.youtube.com/vi/0xftXOdbiDU/maxresdefault.jpg", url: "https://www.youtube.com/embed/0xftXOdbiDU" },
+  { id: 14, title: "GRATIDÃO", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/0xftXOdbiDU/maxresdefault.jpg", url: "https://www.youtube.com/embed/0xftXOdbiDU" },
   { id: 15, title: "NOSSO JEITO DE AMAR", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/RRfgyZBCGn4/maxresdefault.jpg", url: "https://www.youtube.com/embed/RRfgyZBCGn4" },
-  { id: 16, title: "OH, QUÃO LINDO ESSE NOME É", category: "Videoclipe", quality: "4K", img: "https://img.youtube.com/vi/GWZWbLaovLY/maxresdefault.jpg", url: "https://www.youtube.com/embed/GWZWbLaovLY" },
+  { id: 16, title: "OH, QUÃO LINDO ESSE NOME É", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/GWZWbLaovLY/maxresdefault.jpg", url: "https://www.youtube.com/embed/GWZWbLaovLY" },
   { id: 17, title: "REPORTAGEM REVISTA NT AICOM", category: "Documentário", quality: "4K", img: "https://img.youtube.com/vi/4GKvcH-o55M/maxresdefault.jpg", url: "https://www.youtube.com/embed/4GKvcH-o55M" },
   { id: 18, title: "O MELHOR DE MIM - MAKING OF", category: "Bastidores", quality: "4K", img: "https://img.youtube.com/vi/TD3uPps-RQ4/maxresdefault.jpg", url: "https://www.youtube.com/embed/TD3uPps-RQ4" },
+  { id: 19, title: "CONTINUE EM FRENTE", category: "Clipes", quality: "4K", img: "https://img.youtube.com/vi/2MzGgwFq6tA/maxresdefault.jpg", url: "https://www.youtube.com/embed/2MzGgwFq6tA" },
 ];
 
-const CATEGORIES = [{ id: 'all', name: 'Todos' }, { id: 'Documentário', name: 'Docs' }, { id: 'Videoclipe', name: 'Clipes' }, { id: 'Cinema', name: 'Cinema' }, { id: 'Bastidores', name: 'Bastidores' }];
+const CATEGORIES = [
+  { id: 'all', name: 'Todos' },
+  { id: 'Documentário', name: 'Docs' },
+  { id: 'Clipes', name: 'Clipes' },
+  { id: 'Cinema', name: 'Cinema' },
+  { id: 'Reality Show', name: 'Reality Show' },
+  { id: 'Bastidores', name: 'Bastidores' },
+];
 const CLIENTS = ["NOVO TEMPO", "UNASP", "MAB", "PRISMA BRASIL", "KIGER", "CALIFORNIA DREAMS"];
 
 // --- CONTEXTO DO CURSOR ---
@@ -61,15 +69,15 @@ const ThemeProvider = ({ children }) => {
       root.style.setProperty('--muted-text', '#cccccc');
       root.style.setProperty('--glass-text-color', '#ffffff'); // New: Text inside glass is always white
     } else {
-      // LIGHT MODE (LUXURY CONTRAST: PLATINUM & OBSIDIAN)
-      root.style.setProperty('--bg-color', '#EAEAEA'); // High-end Platinum
-      root.style.setProperty('--text-color', '#000000'); // Page text is dark
-      root.style.setProperty('--glass-bg', 'rgba(10, 10, 10, 0.85)'); // PURE DARK GLASS
-      root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.15)'); // Crisp white border
-      root.style.setProperty('--glass-shadow', 'rgba(0, 0, 0, 0.2)');
+      // LIGHT MODE — Clean, Modern, Apple-inspired
+      root.style.setProperty('--bg-color', '#F5F5F7');
+      root.style.setProperty('--text-color', '#1D1D1F');
+      root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.72)');
+      root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.08)');
+      root.style.setProperty('--glass-shadow', 'rgba(0, 0, 0, 0.1)');
       root.style.setProperty('--accent-color', '#0071E3');
-      root.style.setProperty('--muted-text', '#A1A1A6');
-      root.style.setProperty('--glass-text-color', '#ffffff'); // Text inside dark glass is white
+      root.style.setProperty('--muted-text', '#6E6E73');
+      root.style.setProperty('--glass-text-color', '#1D1D1F');
     }
   }, [theme]);
 
@@ -101,11 +109,6 @@ const MouseOrb = () => {
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
   const [isVisible, setIsVisible] = useState(false);
-
-  // Suavização do movimento - "Snappy"
-  const springConfig = { damping: 30, stiffness: 600 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
     const moveCursor = (e) => {
@@ -176,24 +179,19 @@ const MouseOrb = () => {
     <motion.div
       variants={variants}
       animate={!isVisible ? 'hidden' : cursorVariant}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 28,
-        mass: 0.8
-      }}
+      transition={{ type: "tween", duration: 0 }}
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        x: springX,
-        y: springY,
+        x: mouseX,
+        y: mouseY,
         pointerEvents: 'none',
         zIndex: 9999,
         translateX: '-50%',
         translateY: '-50%',
-        backdropFilter: 'blur(3px)',
-        boxShadow: '0 0 10px rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(4px)',
+        boxShadow: '0 2px 16px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.4)',
       }}
     />
   );
@@ -267,10 +265,10 @@ const TiltCard = ({ project, onClick }) => {
         rotateY,
         transformStyle: "preserve-3d",
         perspective: 1000,
-        height: '320px',
+        aspectRatio: '16/9',
         position: 'relative',
         cursor: 'none',
-        overflow: 'hidden' // Garante que o glare não vaze bordas arredondadas
+        overflow: 'hidden'
       }}
       onMouseMove={handleMouse}
       onMouseLeave={handleMouseLeave}
@@ -477,32 +475,38 @@ const AppContent = () => {
 
         .glass-luxury {
           background: var(--glass-bg);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
+          backdrop-filter: blur(30px) saturate(180%);
+          -webkit-backdrop-filter: blur(30px) saturate(180%);
           border: 1px solid var(--glass-border);
-          box-shadow: 0 10px 40px var(--glass-shadow);
+          box-shadow: 0 10px 40px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.15);
           transition: all 0.5s ease;
         }
         .glass-card {
           border-radius: 24px;
           border: 1px solid var(--glass-border);
-          box-shadow: 0 20px 40px var(--glass-shadow);
-          transition: transform 0.3s;
+          box-shadow: 0 20px 60px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.12);
+          transition: transform 0.3s, box-shadow 0.3s;
           background: var(--glass-bg);
+          backdrop-filter: blur(20px) saturate(160%);
+          -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
         .glass-btn {
-          background: var(--glass-border); /* Usando border como bg sutil */
-          backdrop-filter: blur(10px);
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
           border: 1px solid var(--glass-border);
-          color: var(--text-color);
-          transition: 0.3s;
+          color: var(--glass-text-color);
+          transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
           cursor: none;
+          box-shadow: 0 4px 16px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.2);
         }
         .glass-btn:hover {
-          background: var(--glass-border);
-          transform: translateY(-3px);
-          box-shadow: 0 0 20px rgba(41, 151, 255, 0.3);
+          transform: translateY(-2px) scale(1.01);
+          box-shadow: 0 8px 32px var(--glass-shadow), 0 0 20px rgba(41, 151, 255, 0.2), inset 0 1px 0 rgba(255,255,255,0.3);
           border-color: var(--accent-color);
+        }
+        .glass-btn:active {
+          transform: translateY(0) scale(0.99);
         }
         .glass-input {
           width: 100%;
@@ -525,16 +529,24 @@ const AppContent = () => {
         }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
         .hover-link:hover { color: var(--accent-color) !important; }
-      `}</style>
 
-      <div className="film-grain"></div>
-      <MouseOrb />
+        .social-tile {
+          backdrop-filter: blur(20px) saturate(160%);
+          -webkit-backdrop-filter: blur(20px) saturate(160%);
+          box-shadow: 0 4px 20px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.12);
+          transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        }
+        .social-tile:hover {
+          transform: translateY(-3px) !important;
+          box-shadow: 0 12px 40px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+      `}</style>
 
       <div className="film-grain"></div>
       <MouseOrb />
@@ -557,8 +569,8 @@ const AppContent = () => {
             onMouseLeave={() => setCursorVariant('default')}
             style={{ textDecoration: 'none', cursor: 'none' }}
           >
-            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>
-              ASCENCIO.<span style={{ color: '#ffffff' }}>FILMS</span>
+            <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--glass-text-color)' }}>
+              ASCENCIO<span style={{ color: 'var(--accent-color)' }}>.FX</span>
             </div>
           </a>
 
@@ -599,7 +611,7 @@ const AppContent = () => {
             pointerEvents: 'none' // Let clicks pass through to underlying elements if needed, but text needs to be visible
           }}>
             <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-color)', textShadow: '0 2px 10px rgba(0,0,0,0.5)', pointerEvents: 'auto' }}>
-              ASCENCIO.<span style={{ color: 'var(--accent-color)' }}>FILMS</span>
+              ASCENCIO<span style={{ color: 'var(--accent-color)' }}>.FX</span>
             </div>
           </div>
 
@@ -653,7 +665,7 @@ const AppContent = () => {
 
         <div style={{ position: 'relative', zIndex: 20, textAlign: 'center', padding: '0 20px', maxWidth: '1000px' }}>
           <motion.div key={`text-${heroIndex}`} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-            <span style={{ color: 'var(--accent-color)', fontSize: '12px', fontWeight: 800, letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '20px', display: 'block' }}>FILMMAKER | EDITOR</span>
+            <span style={{ color: 'var(--accent-color)', fontSize: '12px', fontWeight: 800, letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '20px', display: 'block' }}>FILMMAKER | AI EDITOR</span>
             <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 900, lineHeight: 0.9, marginBottom: '30px', textTransform: 'uppercase', textShadow: '0 20px 50px var(--glass-shadow)', color: 'var(--text-color)' }}
               onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
             >
@@ -760,7 +772,7 @@ const AppContent = () => {
             <p style={{ color: 'var(--muted-text)', fontSize: '18px', lineHeight: 1.6, marginBottom: '30px' }}
               onMouseEnter={() => setCursorVariant('text')} onMouseLeave={() => setCursorVariant('default')}
             >
-              Fundada por <strong>Alex Ascencio</strong>, a <strong>Ascencio Films</strong> carrega a chancela do prêmio <strong>EXPOCOM 2025</strong> e a expertise técnica adquirida em produções globais, como as turnês do <strong>Prisma Brasil</strong>. Aqui, a edição não é apenas técnica, é a ferramenta que traduz grandes histórias em conexões humanas profundas.
+              Fundada por <strong>Alex Ascencio</strong>, a <strong>Ascencio FX</strong> carrega a chancela do prêmio <strong>EXPOCOM 2025</strong> e a expertise técnica adquirida em produções globais, como as turnês do <strong>Prisma Brasil</strong>. Aqui, a edição não é apenas técnica — é a ferramenta que traduz grandes histórias em conexões humanas profundas.
             </p>
             <div style={{ display: 'flex', gap: '15px' }}>
               {['Vencedor EXPOCOM', 'Direção', 'Edição'].map(tag => (
@@ -768,6 +780,105 @@ const AppContent = () => {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* INSTAGRAM AI REELS */}
+      <section style={{ paddingTop: '100px', paddingBottom: '60px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '50px', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <span style={{ color: 'var(--accent-color)', fontSize: '11px', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>@alexascencioai</span>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', lineHeight: 0.9, color: 'var(--text-color)' }}>
+              Reels<br /><span style={{ color: 'var(--accent-color)' }}>com IA</span>
+            </h2>
+          </div>
+          <a
+            href="https://instagram.com/alexascencioai"
+            target="_blank"
+            rel="noreferrer"
+            onMouseEnter={() => setCursorVariant('hover')}
+            onMouseLeave={() => setCursorVariant('default')}
+            style={{
+              textDecoration: 'none',
+              padding: '12px 28px',
+              borderRadius: '30px',
+              border: '1px solid var(--glass-border)',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'blur(12px)',
+              color: 'var(--glass-text-color)',
+              fontSize: '12px',
+              fontWeight: 700,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              cursor: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 20px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.15)',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            Ver no Instagram
+          </a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
+          {[
+            { id: 'reel1', thumbnail: 'https://img.youtube.com/vi/NwesZCYbSx0/maxresdefault.jpg', label: 'Reel com IA #1', url: 'https://instagram.com/alexascencioai' },
+            { id: 'reel2', thumbnail: 'https://img.youtube.com/vi/Mul19Lfeo7Y/maxresdefault.jpg', label: 'Reel com IA #2', url: 'https://instagram.com/alexascencioai' },
+            { id: 'reel3', thumbnail: 'https://img.youtube.com/vi/efa_PSKMHLk/maxresdefault.jpg', label: 'Reel com IA #3', url: 'https://instagram.com/alexascencioai' },
+          ].map((reel) => (
+            <a
+              key={reel.id}
+              href={reel.url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: 'none', cursor: 'none', display: 'block' }}
+              onMouseEnter={() => setCursorVariant('hover')}
+              onMouseLeave={() => setCursorVariant('default')}
+            >
+              <motion.div
+                whileHover={{ scale: 1.02, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  position: 'relative',
+                  aspectRatio: '9/16',
+                  maxHeight: isMobile ? '320px' : '480px',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  border: '1px solid var(--glass-border)',
+                  background: '#000',
+                  boxShadow: '0 20px 60px var(--glass-shadow)',
+                }}
+              >
+                <img
+                  src={reel.thumbnail}
+                  alt={reel.label}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                />
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '20px', left: '20px', right: '20px',
+                }}>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                    padding: '6px 14px', borderRadius: '20px',
+                    background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    fontSize: '11px', fontWeight: 700, color: '#fff',
+                    letterSpacing: '1px', textTransform: 'uppercase',
+                  }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Assistir no Instagram
+                  </span>
+                </div>
+              </motion.div>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -804,7 +915,7 @@ const AppContent = () => {
                 icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>}
               />
               <SocialTile
-                href="https://instagram.com/alexgabriel_ascencio" color="#E1306C" label="Instagram"
+                href="https://instagram.com/alexascencioai" color="#E1306C" label="Instagram"
                 icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>}
               />
               <SocialTile
@@ -861,8 +972,8 @@ const AppContent = () => {
         </div>
       </section>
 
-      <footer style={{ padding: '60px', textAlign: 'center', color: '#555', fontSize: '12px', fontWeight: 700, letterSpacing: '2px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        © 2026 ASCENCIO FILMS.
+      <footer style={{ padding: '60px', textAlign: 'center', color: 'var(--muted-text)', fontSize: '12px', fontWeight: 700, letterSpacing: '2px', borderTop: '1px solid var(--glass-border)' }}>
+        © 2026 ASCENCIO FX.
       </footer>
 
       {activeModal && (
