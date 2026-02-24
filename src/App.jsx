@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { motion, AnimatePresence, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
 import useIsMobile from './hooks/useMobile';
 import MobileProjectRow from './components/MobileProjectRow';
@@ -34,6 +34,20 @@ const CATEGORIES = [
   { id: 'Bastidores', name: 'Bastidores' },
 ];
 const CLIENTS = ["NOVO TEMPO", "UNASP", "MAB", "PRISMA BRASIL", "KIGER", "CALIFORNIA DREAMS"];
+
+// --- INSTAGRAM FEED ---
+// Para atualizar: abra cada post no Instagram → copie o código da URL instagram.com/p/SHORTCODE/
+const INSTAGRAM_POSTS = [
+  { id: 1, shortcode: 'DFrhBcbugWK' },
+  { id: 2, shortcode: 'DFO1QFhOMBL' },
+  { id: 3, shortcode: 'DE9J_PfOFAA' },
+  { id: 4, shortcode: 'DEp1AuAuUEu' },
+  { id: 5, shortcode: 'DEJhqPWOMZd' },
+  { id: 6, shortcode: 'DDhYkLvOsJx' },
+  { id: 7, shortcode: 'C_bFmHhOb3H' },
+  { id: 8, shortcode: 'C9vFsVeObmG' },
+  { id: 9, shortcode: 'C9RrP8nOJPf' },
+];
 
 // --- CONTEXTO DO CURSOR ---
 const CursorContext = createContext();
@@ -205,6 +219,7 @@ const MouseOrb = () => {
 const TiltCard = ({ project, onClick }) => {
   const isMobile = useIsMobile();
   const { setCursorVariant } = useCursor();
+  const [isHovered, setIsHovered] = useState(false);
 
   // Motion Values para inclinação
   const x = useMotionValue(0);
@@ -275,28 +290,38 @@ const TiltCard = ({ project, onClick }) => {
         overflow: 'hidden'
       }}
       onMouseMove={handleMouse}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={() => setCursorVariant('hover')}
+      onMouseLeave={() => { handleMouseLeave(); setIsHovered(false); }}
+      onMouseEnter={() => { setCursorVariant('hover'); setIsHovered(true); }}
       onClick={() => onClick(project)}
     >
-      {/* IMAGEM COM PARALLAX */}
+      {/* IMAGEM / AUTOPLAY PREVIEW */}
       <div style={{ position: 'absolute', inset: 0, transform: 'translateZ(20px)', borderRadius: '20px', overflow: 'hidden' }}>
-        <motion.img
-          src={project.img}
-          alt={project.title}
-          style={{
-            width: '110%', // Um pouco maior para permitir movimento parallax sem cortar
-            height: '110%',
-            x: imgX, // Aplica movimento parallax
-            y: imgY,
-            left: '-5%', // Centraliza compensando o tamanho maior
-            top: '-5%',
-            position: 'absolute',
-            objectFit: 'cover',
-            transition: 'scale 0.5s', // Apenas scale não é spring
-          }}
-          whileHover={{ scale: 1.1 }}
-        />
+        {isHovered && !isMobile ? (
+          <iframe
+            src={`${project.url}?autoplay=1&rel=0&modestbranding=1&controls=0`}
+            style={{ width: '100%', height: '100%', border: 'none', position: 'absolute', inset: 0 }}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            title={project.title}
+          />
+        ) : (
+          <motion.img
+            src={project.img}
+            alt={project.title}
+            style={{
+              width: '110%',
+              height: '110%',
+              x: imgX,
+              y: imgY,
+              left: '-5%',
+              top: '-5%',
+              position: 'absolute',
+              objectFit: 'cover',
+              transition: 'scale 0.5s',
+            }}
+            whileHover={{ scale: 1.1 }}
+          />
+        )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg-color) 0%, transparent 80%)', pointerEvents: 'none' }}></div>
       </div>
 
@@ -438,15 +463,162 @@ const SocialTile = ({ href, icon, label, color }) => {
 
 // --- APP CONTENT (SEPARADO PARA USAR O CONTEXTO) ---
 
+// ─── SHORTS VIEWER ───────────────────────────────────────────────────────────
+const ShortsViewer = ({ items, startIndex = 0, onClose, mode = 'youtube' }) => {
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [direction, setDirection] = useState(0);
+  const { setCursorVariant } = useCursor();
+  const total = items.length;
+  const current = items[currentIndex];
 
-// --- APP CONTENT (SEPARADO PARA USAR O CONTEXTO) ---
+  const goNext = useCallback(() => {
+    if (currentIndex < total - 1) { setDirection(1); setCurrentIndex(i => i + 1); }
+  }, [currentIndex, total]);
+
+  const goPrev = useCallback(() => {
+    if (currentIndex > 0) { setDirection(-1); setCurrentIndex(i => i - 1); }
+  }, [currentIndex]);
+
+  useEffect(() => {
+    let lastWheel = 0;
+    const onWheel = (e) => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastWheel < 650) return;
+      lastWheel = now;
+      if (e.deltaY > 0) goNext(); else goPrev();
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goNext();
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goPrev();
+    };
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('wheel', onWheel); window.removeEventListener('keydown', onKey); };
+  }, [goNext, goPrev, onClose]);
+
+  const slideV = {
+    enter: (d) => ({ y: d > 0 ? '60%' : '-60%', opacity: 0, scale: 0.95 }),
+    center: { y: 0, opacity: 1, scale: 1 },
+    exit: (d) => ({ y: d > 0 ? '-60%' : '60%', opacity: 0, scale: 0.95 }),
+  };
+
+  const getSrc = (item) => {
+    if (mode === 'instagram') return `https://www.instagram.com/p/${item.shortcode}/embed/captioned/`;
+    return `${item.url}?autoplay=1&rel=0&modestbranding=1`;
+  };
+
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === total - 1;
+  const btnBase = {
+    backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)',
+    borderRadius: '50%', width: 52, height: 52, cursor: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s',
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 10000,
+        background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(24px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      {/* CLOSE */}
+      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+        onClick={onClose}
+        onMouseEnter={() => setCursorVariant('hover')} onMouseLeave={() => setCursorVariant('default')}
+        style={{ ...btnBase, position: 'absolute', top: 24, right: 24, background: 'rgba(255,255,255,0.08)', color: '#fff', zIndex: 10 }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+      </motion.button>
+
+      {/* COUNTER */}
+      <div style={{
+        position: 'absolute', top: 28, left: '50%', transform: 'translateX(-50%)',
+        background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+        backdropFilter: 'blur(12px)', borderRadius: 20, padding: '7px 18px',
+        color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: 2,
+      }}>
+        {currentIndex + 1} / {total}
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div style={{ position: 'relative', width: mode === 'instagram' ? 'min(90vw, 480px)' : 'min(90vw, 960px)' }}>
+        <AnimatePresence custom={direction} mode="wait">
+          <motion.div key={currentIndex} custom={direction}
+            variants={slideV} initial="enter" animate="center" exit="exit"
+            transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+            style={{
+              aspectRatio: mode === 'instagram' ? '4/5' : '16/9',
+              borderRadius: 24, overflow: 'hidden',
+              background: mode === 'instagram' ? '#fff' : '#000',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.6)',
+            }}
+          >
+            <iframe src={getSrc(current)} style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture"
+              allowFullScreen title={`item-${currentIndex}`}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* VIDEO INFO (YouTube mode) */}
+        {mode === 'youtube' && current.title && (
+          <motion.div key={`info-${currentIndex}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            style={{ padding: '20px 4px 0' }}
+          >
+            <span style={{ color: 'var(--accent-color)', fontSize: 11, fontWeight: 800, letterSpacing: 3, textTransform: 'uppercase' }}>
+              {current.category}
+            </span>
+            <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginTop: 6 }}>{current.title}</h3>
+          </motion.div>
+        )}
+      </div>
+
+      {/* NAV BUTTONS */}
+      <div style={{ position: 'absolute', right: 28, top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {[
+          { fn: goPrev, disabled: isFirst, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15" /></svg> },
+          { fn: goNext, disabled: isLast, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9" /></svg> },
+        ].map(({ fn, disabled, icon }, i) => (
+          <motion.button key={i} onClick={fn} disabled={disabled}
+            whileHover={!disabled ? { scale: 1.1 } : {}} whileTap={!disabled ? { scale: 0.9 } : {}}
+            onMouseEnter={() => setCursorVariant('hover')} onMouseLeave={() => setCursorVariant('default')}
+            style={{ ...btnBase, background: disabled ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.12)', color: disabled ? 'rgba(255,255,255,0.25)' : '#fff' }}
+          >{icon}</motion.button>
+        ))}
+      </div>
+
+      {/* PROGRESS DOTS */}
+      <div style={{ position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+        {items.map((_, i) => (
+          <motion.button key={i}
+            onClick={() => { setDirection(i > currentIndex ? 1 : -1); setCurrentIndex(i); }}
+            onMouseEnter={() => setCursorVariant('hover')} onMouseLeave={() => setCursorVariant('default')}
+            animate={{ width: i === currentIndex ? 22 : 8, opacity: i === currentIndex ? 1 : 0.35 }}
+            style={{ height: 8, borderRadius: 4, background: i === currentIndex ? 'var(--accent-color)' : '#fff', border: 'none', padding: 0, cursor: 'none' }}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
 const AppContent = () => {
   const isMobile = useIsMobile();
   const { setCursorVariant } = useCursor();
-  const [activeModal, setActiveModal] = useState(null);
+  const [shorts, setShorts] = useState({ open: false, index: 0 });
   const [heroIndex, setHeroIndex] = useState(() => Math.floor(Math.random() * PROJECTS.length));
   const [scrolled, setScrolled] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const openShorts = useCallback((index) => setShorts({ open: true, index }), []);
 
   useEffect(() => {
     const scrollHandler = () => setScrolled(window.scrollY > 50);
@@ -681,7 +853,7 @@ const AppContent = () => {
               Transformando ideias em cinema.
             </p>
             <button
-              onClick={() => setActiveModal(PROJECTS[heroIndex].url)}
+              onClick={() => openShorts(heroIndex)}
               onMouseEnter={() => setCursorVariant('hover')}
               onMouseLeave={() => setCursorVariant('default')}
               className="glass-btn"
@@ -756,7 +928,7 @@ const AppContent = () => {
         ) : (
           // STANDARD GRID VIEW (Desktop or Filtered Mobile)
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(350px, 1fr))', gap: '40px' }}>
-            {filteredProjects.map(p => <TiltCard key={p.id} project={p} onClick={(proj) => setActiveModal(proj.url)} />)}
+            {filteredProjects.map((p, idx) => <TiltCard key={p.id} project={p} onClick={() => openShorts(PROJECTS.indexOf(p))} />)}
           </div>
         )}
       </section>
@@ -787,106 +959,80 @@ const AppContent = () => {
         </div>
       </section>
 
-      {/* INSTAGRAM AI REELS */}
-      <section style={{ paddingTop: '100px', paddingBottom: '60px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '50px', flexWrap: 'wrap', gap: '20px' }}>
+      {/* INSTAGRAM FEED */}
+      <section id="instagram" style={{ paddingTop: '100px', paddingBottom: '60px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
             <span style={{ color: 'var(--accent-color)', fontSize: '11px', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>@alexascencioai</span>
             <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, textTransform: 'uppercase', lineHeight: 0.9, color: 'var(--text-color)' }}>
-              Reels<br /><span style={{ color: 'var(--accent-color)' }}>com IA</span>
+              Feed<br /><span style={{ color: 'var(--accent-color)' }}>Instagram</span>
             </h2>
           </div>
           <a
-            href="https://instagram.com/alexascencioai"
-            target="_blank"
-            rel="noreferrer"
-            onMouseEnter={() => setCursorVariant('hover')}
-            onMouseLeave={() => setCursorVariant('default')}
+            href="https://instagram.com/alexascencioai" target="_blank" rel="noreferrer"
+            onMouseEnter={() => setCursorVariant('hover')} onMouseLeave={() => setCursorVariant('default')}
             style={{
-              textDecoration: 'none',
-              padding: '12px 28px',
-              borderRadius: '30px',
-              border: '1px solid var(--glass-border)',
-              background: 'var(--glass-bg)',
-              backdropFilter: 'blur(12px)',
-              color: 'var(--glass-text-color)',
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              cursor: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
+              textDecoration: 'none', padding: '12px 28px', borderRadius: '30px',
+              border: '1px solid var(--glass-border)', background: 'var(--glass-bg)',
+              backdropFilter: 'blur(12px)', color: 'var(--glass-text-color)',
+              fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
+              cursor: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px',
               boxShadow: '0 4px 20px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.15)',
-              transition: 'all 0.3s ease'
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            Ver no Instagram
+            Ver Perfil
           </a>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
-          {[
-            { id: 'reel1', thumbnail: 'https://img.youtube.com/vi/NwesZCYbSx0/maxresdefault.jpg', label: 'Reel com IA #1', url: 'https://instagram.com/alexascencioai' },
-            { id: 'reel2', thumbnail: 'https://img.youtube.com/vi/Mul19Lfeo7Y/maxresdefault.jpg', label: 'Reel com IA #2', url: 'https://instagram.com/alexascencioai' },
-            { id: 'reel3', thumbnail: 'https://img.youtube.com/vi/efa_PSKMHLk/maxresdefault.jpg', label: 'Reel com IA #3', url: 'https://instagram.com/alexascencioai' },
-          ].map((reel) => (
-            <a
-              key={reel.id}
-              href={reel.url}
-              target="_blank"
-              rel="noreferrer"
-              style={{ textDecoration: 'none', cursor: 'none', display: 'block' }}
+
+        {/* 3×3 Grid of Instagram embeds */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: '16px' }}>
+          {INSTAGRAM_POSTS.map((post, idx) => (
+            <motion.div
+              key={post.id}
+              whileHover={{ scale: 1.02, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShorts({ open: true, index: idx, mode: 'instagram' })}
               onMouseEnter={() => setCursorVariant('hover')}
               onMouseLeave={() => setCursorVariant('default')}
+              style={{
+                position: 'relative', aspectRatio: '1/1', borderRadius: '16px',
+                overflow: 'hidden', cursor: 'none',
+                border: '1px solid var(--glass-border)',
+                boxShadow: '0 8px 32px var(--glass-shadow)',
+              }}
             >
-              <motion.div
-                whileHover={{ scale: 1.02, y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                  position: 'relative',
-                  aspectRatio: '9/16',
-                  maxHeight: isMobile ? '320px' : '480px',
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  border: '1px solid var(--glass-border)',
-                  background: '#000',
-                  boxShadow: '0 20px 60px var(--glass-shadow)',
-                }}
-              >
-                <img
-                  src={reel.thumbnail}
-                  alt={reel.label}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
-                />
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
-                }} />
-                <div style={{
-                  position: 'absolute',
-                  bottom: '20px', left: '20px', right: '20px',
+              <iframe
+                src={`https://www.instagram.com/p/${post.shortcode}/embed/`}
+                style={{ width: '100%', height: '150%', border: 'none', marginTop: '-10%', pointerEvents: 'none' }}
+                scrolling="no"
+                title={`instagram-${post.id}`}
+              />
+              {/* Click overlay */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)',
+              }} />
+              <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  padding: '5px 12px', borderRadius: '20px',
+                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  fontSize: '10px', fontWeight: 700, color: '#fff', letterSpacing: '1px',
                 }}>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 14px', borderRadius: '20px',
-                    background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    fontSize: '11px', fontWeight: 700, color: '#fff',
-                    letterSpacing: '1px', textTransform: 'uppercase',
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                    Assistir no Instagram
-                  </span>
-                </div>
-              </motion.div>
-            </a>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  Ver
+                </span>
+              </div>
+            </motion.div>
           ))}
         </div>
       </section>
 
       {/* CONTATO - UNIFIED CRYSTAL DASHBOARD */}
+
       <section id="contato" style={{ paddingTop: '100px', paddingBottom: '120px', width: '100%', maxWidth: '1200px', margin: '0 auto', paddingLeft: '20px', paddingRight: '20px', display: 'flex', justifyContent: 'center' }}>
         <div className="glass-luxury" style={{
           width: '100%',
@@ -980,21 +1126,29 @@ const AppContent = () => {
         © 2026 ASCENCIO FX.
       </footer>
 
-      {activeModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setActiveModal(null)}>
-          <div className="glass-luxury" style={{ width: '90%', maxWidth: '1200px', aspectRatio: '16/9', borderRadius: '20px', overflow: 'hidden', position: 'relative' }}>
-            <iframe src={`${activeModal}?autoplay=1`} style={{ width: '100%', height: '100%', border: 'none' }} allow="autoplay" allowFullScreen />
-            <button
-              onClick={() => setActiveModal(null)}
-              onMouseEnter={() => setCursorVariant('hover')}
-              onMouseLeave={() => setCursorVariant('default')}
-              style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: 700 }}
-            >
-              FECHAR
-            </button>
-          </div>
-        </div>
-      )}
+      {/* SHORTS VIEWER — Portfolio */}
+      <AnimatePresence>
+        {shorts.open && !shorts.mode && (
+          <ShortsViewer
+            items={PROJECTS}
+            startIndex={shorts.index}
+            onClose={() => setShorts({ open: false, index: 0 })}
+            mode="youtube"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* SHORTS VIEWER — Instagram */}
+      <AnimatePresence>
+        {shorts.open && shorts.mode === 'instagram' && (
+          <ShortsViewer
+            items={INSTAGRAM_POSTS}
+            startIndex={shorts.index}
+            onClose={() => setShorts({ open: false, index: 0 })}
+            mode="instagram"
+          />
+        )}
+      </AnimatePresence>
 
 
       <style>{`
@@ -1003,7 +1157,7 @@ const AppContent = () => {
       `}</style>
 
 
-    </div>
+    </div >
   );
 };
 
